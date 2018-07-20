@@ -22,12 +22,22 @@ object dsnn {
     r
   }
 
+  def SNN (a: Array[(Long, Int)], b: Array[(Long, Int)]): Int = {
+    var c = 0
+    for (x <- a; y <- b) {
+      if (x._1 == y._1) c += 1
+    }
+    c
+  }
+
   def main (args: Array[String]) {
     val sparkConf = new SparkConf().setAppName("dsnn").setMaster("local[2]")
     val sc = new SparkContext(sparkConf)
     val file = "bitcoinalpha.csv"
     //val file = "ezbit.csv"
     val k = 4
+    val eps = 1
+    val minpts = 2
     println("--------------------------------------------")
     args.foreach(println)
 
@@ -46,7 +56,10 @@ object dsnn {
       (a,b) => { kMin(k, a, b) }
     )
 
-    kclosest.foreach(x => println(x._1, x._2.deep))
+    //kclosest.foreach(x => println(x._1, x._2.deep))
+    var snns = kclosest.cartesian(kclosest).map( x => { (x._1._1, SNN(x._1._2,x._2._2)) })
+    var core = snns.filter(x=>{x._2>eps}).countByKey.filter(x=>{x._2>minpts}) //core points
+    println(core.keys)
 
     println("--------------------------------------------")
     sc.stop()
