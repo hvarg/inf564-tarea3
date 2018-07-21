@@ -1,7 +1,6 @@
 package dsnn
 
 object dsnn {
-  //import breeze.linalg.{Vector,DenseVector}
   import org.apache.spark._
   import org.apache.spark.graphx.{Graph, Edge}
 
